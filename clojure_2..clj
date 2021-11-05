@@ -1,6 +1,6 @@
 (defn func [func index step]
-  (reduce (fn [acc x] (* (/ (+ (func acc) (func x)) 2) step))
-          (range 0 (+ index 1) step)))
+  (reduce (fn [acc x2] (+ acc (* (func x2) step)))
+          (conj (vec (range 0 index step)) index)))
 
 (def parabola (fn [x] (* x x)))
 

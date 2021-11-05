@@ -1,30 +1,47 @@
-(defn heavy-inc [n]
-  (Thread/sleep 100)
-  (inc n))
+(defn integrate [func step]
+  (reductions (fn [acc x2] (+ acc (*
+                                   (/ (+ (func x2) (func (- x2 step)))
+                                      2)
+                                   step)))
+              (map (partial * step) (range))))
+
+(defn integrator [upper-limit]
+  (let [step 1
+        function identity
+        integrator (integrate function step)]
+    (+ (* (function (/ (+ (function (int upper-limit)) (function upper-limit)) 2))
+          (- upper-limit (int upper-limit)))
+       (nth integrator upper-limit))))
+
+(def integrator-mem (memoize integrator))
+
+(do
+  (time (integrator 1000000))
+  (time (integrator 1000000))
+  (time (integrator 1000000))
+  (time (integrator 1000000))
+  (time (integrator 1000000))
+  (time (integrator 1000000)))
+
+(do
+  (time (integrator-mem 1000000))
+  (time (integrator-mem 1000000))
+  (time (integrator-mem 1000000))
+  (time (integrator-mem 1000000))
+  (time (integrator-mem 1000000))
+  (time (integrator-mem 1000000)))
 
 (time
  (->> (iterate inc 0)
-      (take 10)
-      (map heavy-inc)))
-
-(take 10 (iterate inc 1))
-
-(time
- (->> (iterate inc 0)
-      (take 10) ; (0 1 2 3 4 5 6 7 8 9)
-      (map heavy-inc) ; (map heavy-inc '(0 1 2 3 4 5 6 7 8 9))
+      (take 1000)
+      (map #(future (integrator %)))
+      (doall)
+      (map deref)
       (doall)))
 
-(defn func [func index step]
-  (reduce (fn [acc x] (* (/ (+ (func acc) (func x)) 2) step))
-          (range 0 (+ index 1) step)))
-
-(def parabola (fn [x] (* x x)))
-
 (time
  (->> (iterate inc 0)
-      (take 10)
-      (map #(future (func parabola % 1)))
-      (doall)
+      (take 1000)
+      (map #(future (integrator %)))
       (map deref)
       (doall)))
