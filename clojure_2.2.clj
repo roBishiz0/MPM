@@ -39,8 +39,6 @@
       (map deref)
       (doall)))
 
-(take 1000 (iterate inc 0))
-
 (time
  (->> (iterate inc 0)
       (take 1000)
