@@ -20,14 +20,15 @@
   (mapcat deref
   ;;(mapcat (fn [x] x)
           (mapcat identity
-                  (doall (map (fn [colls]
-                                (map (fn [pred-colls]
-                                       ;;(println pred-colls)
-                                       (future (doall (filter pred pred-colls))))
-                                     (partition-lazy chunk-size colls)))
-                              (partition-lazy
-                               (* chunk-size treads)
-                               coll))))))
+                  (map (fn [colls]
+                         (doall
+                          (map (fn [pred-colls]
+                                 ;;(println pred-colls)
+                                 (future (doall (filter pred pred-colls))))
+                               (partition-lazy chunk-size colls))))
+                         (partition-lazy
+                          (* chunk-size treads)
+                          coll)))))
 
 (take 10 (partition-lazy 10 (take 2 (range))))
 
@@ -44,3 +45,5 @@
                             2
                             5)
            (doall)))
+
+(print "test")
